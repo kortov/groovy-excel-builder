@@ -28,6 +28,7 @@ repositories {
 
 dependencies {
     provided 'org.codehaus.groovy:groovy:2.5.8'
+    compileClasspath 'org.codehaus.groovy:groovy-templates:2.5.8'
     compile "org.apache.poi:poi-ooxml:4.1.0"
     codenarc 'org.codenarc:CodeNarc:1.4'
     testCompile 'org.codehaus.groovy:groovy-dateutil:2.5.8'
