@@ -37,6 +37,8 @@ class Workbook {
 
     private static final String WIDTH = 'width'
     private static final String HEIGHT = 'height'
+    private static final String TRACK_COLUMNS = 'trackColumns'
+    private static final String UNTRACK_COLUMNS = 'untrackColumns'
 
     Workbook(SXSSFWorkbook wb) {
         this.wb = wb
@@ -89,6 +91,17 @@ class Workbook {
 
     private SXSSFSheet handleSheet(SXSSFSheet sheet, Map options, Closure callable) {
         callable.resolveStrategy = Closure.DELEGATE_FIRST
+        prepareSheetFromOptions(options, sheet)
+        callable.delegate = new Sheet(sheet, styleBuilder)
+        if (callable.maximumNumberOfParameters == 1) {
+            callable.call(sheet)
+        } else {
+            callable.call()
+        }
+        sheet
+    }
+
+    private void prepareSheetFromOptions(Map options, SXSSFSheet sheet) {
         if (options.containsKey(WIDTH)) {
             Object width = options[WIDTH]
             if (width instanceof Integer) {
@@ -109,12 +122,30 @@ class Workbook {
             }
         }
 
-        callable.delegate = new Sheet(sheet, styleBuilder)
-        if (callable.maximumNumberOfParameters == 1) {
-            callable.call(sheet)
-        } else {
-            callable.call()
+        if (options.containsKey(TRACK_COLUMNS)) {
+            Object trackedColumns = options[TRACK_COLUMNS]
+            if (trackedColumns instanceof Integer) {
+                sheet.trackColumnForAutoSizing(trackedColumns)
+            } else if (trackedColumns instanceof Collection && !trackedColumns.isEmpty()) {
+                sheet.trackColumnsForAutoSizing(trackedColumns)
+            } else if (trackedColumns == AutoSizeColumnsTracking.TRACK_ALL) {
+                sheet.trackAllColumnsForAutoSizing()
+            } else {
+                throw new IllegalArgumentException('Sheet tracked columns must be integers')
+            }
         }
-        sheet
+
+        if (options.containsKey(UNTRACK_COLUMNS)) {
+            Object untrackedColumns = options[UNTRACK_COLUMNS]
+            if (untrackedColumns instanceof Integer) {
+                sheet.untrackColumnForAutoSizing(untrackedColumns)
+            } else if (untrackedColumns instanceof Collection) {
+                sheet.untrackColumnsForAutoSizing(untrackedColumns)
+            } else if (untrackedColumns == AutoSizeColumnsTracking.UNTRACK_ALL) {
+                sheet.untrackAllColumnsForAutoSizing()
+            } else {
+                throw new IllegalArgumentException('Sheet untracked columns must be integers')
+            }
+        }
     }
 }
