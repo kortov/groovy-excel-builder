@@ -139,7 +139,7 @@ class Workbook {
             Object untrackedColumns = options[UNTRACK_COLUMNS]
             if (untrackedColumns instanceof Integer) {
                 sheet.untrackColumnForAutoSizing(untrackedColumns)
-            } else if (untrackedColumns instanceof Collection) {
+            } else if (untrackedColumns instanceof Collection && !untrackedColumns.isEmpty()) {
                 sheet.untrackColumnsForAutoSizing(untrackedColumns)
             } else if (untrackedColumns == AutoSizeColumnsTracking.UNTRACK_ALL) {
                 sheet.untrackAllColumnsForAutoSizing()
